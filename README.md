@@ -44,69 +44,56 @@
 
 ## 🚀 快速开始
 
-### 安装依赖
+### 方式一：直接使用（推荐）
+
+无需安装任何依赖，直接将项目文件上传到 HTTP 服务器即可使用：
+
+1. **下载项目文件**
+2. **上传到服务器**：将所有文件上传到 Web 服务器目录
+3. **访问网站**：打开浏览器访问 `index.html`
+
+### 方式二：本地开发
+
+如果需要进行开发或测试：
 
 ```bash
+# 安装依赖（仅用于开发和测试）
 npm install
-```
 
-### 开发模式
-
-```bash
+# 开发模式
 npm run dev
-```
 
-### 构建生产版本
-
-```bash
-npm run build
-```
-
-### 运行测试
-
-```bash
+# 运行测试
 npm test
 ```
 
 ### 部署为静态网站
 
-由于是纯前端项目，可以部署到任何静态网站托管服务：
-
-```bash
-# 构建生产版本
-npm run build
-
-# dist 目录包含所有静态文件
-```
+项目已经是纯静态文件，可以直接部署：
 
 #### 部署选项
 
-**1. GitHub Pages**
-```bash
-npm run deploy:gh
-```
+**1. 直接上传（最简单）**
+- 将项目所有文件上传到 Web 服务器
+- 确保 `index.html` 可以被访问
+- 无需任何构建步骤
 
-**2. Netlify**
-- 连接 GitHub 仓库
-- 构建命令：`npm run build`
-- 发布目录：`dist`
+**2. GitHub Pages**
+- 将代码推送到 GitHub 仓库
+- 在设置中启用 GitHub Pages
+- 选择主分支作为源
 
-**3. Vercel**
+**3. Netlify**
+- 拖拽项目文件夹到 Netlify
+- 或连接 GitHub 仓库（无需构建命令）
+
+**4. Vercel**
 - 导入 GitHub 仓库
-- 自动检测 Vite 项目配置
-
-**4. Docker 部署**
-```bash
-# 构建镜像
-docker build -t md2page .
-
-# 运行容器
-docker run -p 80:80 md2page
-```
+- 设置为静态网站（无需构建）
 
 **5. 任何 Web 服务器**
-- 将 `dist` 目录内容复制到服务器
-- 配置服务器支持 SPA 路由（可选）
+- Apache、Nginx、IIS 等
+- 直接复制文件到网站根目录
 
 ## 📖 使用说明
 

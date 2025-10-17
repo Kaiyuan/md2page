@@ -1,0 +1,248 @@
+/**
+ * 打印样式
+ * 优化打印时的页面显示
+ */
+
+@media print {
+    /* 重置基础样式 */
+    * {
+        -webkit-print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+
+    /* 页面设置 */
+    @page {
+        margin: 2cm;
+        size: A4;
+    }
+
+    /* 隐藏不需要打印的元素 */
+    .app-header,
+    .app-footer,
+    .header-controls,
+    .panel-header,
+    .file-upload-container,
+    .upload-section,
+    .toc-container,
+    .preview-controls,
+    .theme-toggle,
+    .download-btn,
+    .print-btn,
+    .upload-btn,
+    .toggle-toc,
+    .error-modal,
+    .status-indicator,
+    .modal,
+    button,
+    input[type="file"] {
+        display: none !important;
+    }
+
+    /* 主体布局调整 */
+    body {
+        font-family: "Times New Roman", Times, serif !important;
+        font-size: 12pt !important;
+        line-height: 1.5 !important;
+        color: #000 !important;
+        background: #fff !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    #app {
+        display: block !important;
+        min-height: auto !important;
+    }
+
+    .app-main {
+        display: block !important;
+        grid-template-columns: none !important;
+        gap: 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        max-width: none !important;
+        width: 100% !important;
+    }
+
+    .input-panel {
+        display: none !important;
+    }
+
+    .preview-panel {
+        display: block !important;
+        background: none !important;
+        border: none !important;
+        border-radius: 0 !important;
+        overflow: visible !important;
+    }
+
+    .panel-content {
+        display: block !important;
+        flex-direction: column !important;
+    }
+
+    .preview-content {
+        padding: 0 !important;
+        overflow: visible !important;
+        flex: none !important;
+    }
+
+    /* 标题样式 */
+    .preview-content h1,
+    .preview-content h2,
+    .preview-content h3,
+    .preview-content h4,
+    .preview-content h5,
+    .preview-content h6 {
+        color: #000 !important;
+        page-break-after: avoid;
+        margin-top: 1.5em !important;
+        margin-bottom: 0.5em !important;
+        font-weight: bold !important;
+    }
+
+    .preview-content h1 {
+        font-size: 18pt !important;
+        border-bottom: 2pt solid #000;
+        padding-bottom: 0.2em;
+    }
+
+    .preview-content h2 {
+        font-size: 16pt !important;
+        border-bottom: 1pt solid #666;
+        padding-bottom: 0.1em;
+    }
+
+    .preview-content h3 {
+        font-size: 14pt !important;
+    }
+
+    .preview-content h4 {
+        font-size: 13pt !important;
+    }
+
+    .preview-content h5,
+    .preview-content h6 {
+        font-size: 12pt !important;
+    }
+
+    /* 段落样式 */
+    .preview-content p {
+        margin: 0.5em 0 !important;
+        text-align: justify;
+        orphans: 3;
+        widows: 3;
+    }
+
+    /* 列表样式 */
+    .preview-content ul,
+    .preview-content ol {
+        margin: 0.5em 0 !important;
+        padding-left: 1.5em !important;
+    }
+
+    .preview-content li {
+        margin: 0.2em 0 !important;
+        page-break-inside: avoid;
+    }
+
+    /* 引用块样式 */
+    .preview-content blockquote {
+        margin: 1em 0 !important;
+        padding: 0.5em 1em !important;
+        border-left: 3pt solid #666 !important;
+        background: #f9f9f9 !important;
+        font-style: italic;
+        page-break-inside: avoid;
+    }
+
+    /* 代码样式 */
+    .preview-content code {
+        font-family: "Courier New", Courier, monospace !important;
+        font-size: 10pt !important;
+        background: #f5f5f5 !important;
+        padding: 0.1em 0.2em !important;
+        border: 1pt solid #ddd !important;
+        border-radius: 2pt;
+    }
+
+    .preview-content pre {
+        font-family: "Courier New", Courier, monospace !important;
+        font-size: 9pt !important;
+        background: #f8f8f8 !important;
+        border: 1pt solid #ccc !important;
+        padding: 0.5em !important;
+        margin: 0.5em 0 !important;
+        overflow: visible !important;
+        white-space: pre-wrap !important;
+        word-wrap: break-word !important;
+        page-break-inside: avoid;
+    }
+
+    .preview-content pre code {
+        background: none !important;
+        border: none !important;
+        padding: 0 !important;
+    }
+
+    /* 表格样式 */
+    .preview-content table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        margin: 0.5em 0 !important;
+        font-size: 10pt !important;
+        page-break-inside: avoid;
+    }
+
+    .preview-content th,
+    .preview-content td {
+        border: 1pt solid #000 !important;
+        padding: 0.3em !important;
+        text-align: left !important;
+        vertical-align: top !important;
+    }
+
+    .preview-content th {
+        background: #f0f0f0 !important;
+        font-weight: bold !important;
+    }
+
+    /* 图片样式 */
+    .preview-content img {
+        max-width: 100% !important;
+        height: auto !important;
+        page-break-inside: avoid;
+        margin: 0.5em 0 !important;
+    }
+
+    /* 链接样式 */
+    .preview-content a {
+        color: #000 !important;
+        text-decoration: underline !important;
+    }
+
+    /* 显示链接 URL */
+    .preview-content a[href]:after {
+        content: " (" attr(href) ")";
+        font-size: 9pt;
+        color: #666;
+    }
+
+    /* 水平线样式 */
+    .preview-content hr {
+        border: none !important;
+        border-top: 1pt solid #000 !important;
+        margin: 1em 0 !important;
+        page-break-after: avoid;
+    }
+
+    /* 确保内容可见 */
+    .preview-placeholder {
+        display: none !important;
+    }
+
+    /* 错误信息在打印时隐藏 */
+    .error {
+        display: none !important;
+    }
+}
