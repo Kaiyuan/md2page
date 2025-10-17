@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>md2page - 简单版本</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+        
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            height: 80vh;
+        }
+        
+        .panel {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .panel-header {
+            background: #f5f5f5;
+            padding: 1rem;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .panel-content {
+            flex: 1;
+            padding: 1rem;
+        }
+        
+        textarea {
+            width: 100%;
+            height: 100%;
+            border: none;
+            outline: none;
+            font-family: monospace;
+            resize: none;
+        }
+        
+        .preview {
+            overflow-y: auto;
+        }
+        
+        button {
+            padding: 0.5rem 1rem;
+            margin: 0.5rem;
+            border: none;
+            border-radius: 4px;
+            background: #007acc;
+            color: white;
+            cursor: pointer;
+        }
+        
+        button:hover {
+            background: #005a9e;
+        }
+    </style>
+</head>
+<body>
+    <h1>md2page - 简单版本</h1>
+    
+    <div style="margin-bottom: 1rem;">
+        <button onclick="downloadHTML()">下载 HTML</button>
+        <button onclick="toggleTheme()">切换主题</button>
+    </div>
+    
+    <div class="container">
+        <div class="panel">
+            <div class="panel-header">
+                <h3>Markdown 输入</h3>
+            </div>
+            <div class="panel-content">
+                <textarea id="markdown-input" placeholder="在此输入 Markdown 内容..." oninput="updatePreview()">
+# 欢迎使用 md2page
+
+这是一个简单的 Markdown 转 HTML 转换器。
+
+## 功能特点
+
+- **实时预览**：输入内容立即显示效果
+- **文件下载**：生成 HTML 文件下载
+- **主题切换**：支持亮色和暗色主题
+
+## 代码示例
+
+```javascript
+function hello() {
+    console.log("Hello, World!");
+}
+```
+
+## 表格示例
+
+| 功能 | 状态 |
+|------|------|
+| 预览 | ✅ |
+| 下载 | ✅ |
+| 主题 | ✅ |
+
+> 这是一个引用块示例。
+
+**粗体文本** 和 *斜体文本*
+
+---
+
+开始编辑上面的内容，查看实时预览效果！
+                </textarea>
+            </div>
+        </div>
+        
+        <div class="panel">
+            <div class="panel-header">
+                <h3>HTML 预览</h3>
+            </div>
+            <div class="panel-content">
+                <div id="preview" class="preview"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入 marked.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/marked@9.1.6/marked.min.js"></script>
+    
+    <script>
+        let currentTheme = 'light';
+        
+        // 等待页面加载完成
+        document.addEventListener('DOMContentLoaded', function() {
+            // 检查 marked 库是否加载
+            if (typeof marked === 'undefined') {
+                document.getElementById('preview').innerHTML = '<p style="color: red;">错误：marked.js 库加载失败</p>';
+                return;
+            }
+            
+            // 配置 marked
+            marked.setOptions({
+                breaks: true,
+                gfm: true,
+                headerIds: true
+            });
+            
+            // 初始更新预览
+            updatePreview();
+        });
+        
+        // 更新预览
+        function updatePreview() {
+            const input = document.getElementById('markdown-input');
+            const preview = document.getElementById('preview');
+            
+            if (!input || !preview) return;
+            
+            const markdown = input.value;
+            
+            if (!markdown.trim()) {
+                preview.innerHTML = '<p style="color: #666; font-style: italic;">预览将在这里显示</p>';
+                return;
+            }
+            
+            try {
+                const html = marked.parse(markdown);
+                preview.innerHTML = html;
+            } catch (error) {
+                preview.innerHTML = `<p style="color: red;">解析错误: ${error.message}</p>`;
+            }
+        }
+        
+        // 下载 HTML
+        function downloadHTML() {
+            const preview = document.getElementById('preview');
+            if (!preview || !preview.innerHTML.trim()) {
+                alert('没有可下载的内容');
+                return;
+            }
+            
+            const title = extractTitle() || 'markdown-document';
+            const htmlContent = generateFullHTML(preview.innerHTML, title);
+            
+            const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            
+            link.href = url;
+            link.download = title + '.html';
+            link.style.display = 'none';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            setTimeout(() => URL.revokeObjectURL(url), 100);
+        }
+        
+        // 提取标题
+        function extractTitle() {
+            const input = document.getElementById('markdown-input');
+            if (!input) return null;
+            
+            const content = input.value;
+            const match = content.match(/^#\s+(.+)$/m);
+            return match ? match[1].trim().replace(/[<>:"/\\|?*]/g, '').replace(/\s+/g, '-') : null;
+        }
+        
+        // 生成完整 HTML
+        function generateFullHTML(content, title) {
+            return `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${title}</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            color: ${currentTheme === 'dark' ? '#e1e1e1' : '#333'};
+            background-color: ${currentTheme === 'dark' ? '#1a1a1a' : '#fff'};
+        }
+        h1, h2, h3, h4, h5, h6 { margin-top: 2rem; margin-bottom: 1rem; }
+        p { margin: 1rem 0; }
+        code { background: #f5f5f5; padding: 0.2rem 0.4rem; border-radius: 3px; }
+        pre { background: #f8f9fa; padding: 1rem; border-radius: 6px; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+        th, td { border: 1px solid #ddd; padding: 0.5rem; }
+        th { background: #f9f9f9; }
+        blockquote { border-left: 4px solid #007acc; margin: 1rem 0; padding: 1rem; background: #f8f9fa; }
+    </style>
+</head>
+<body>
+    <div class="content">
+        ${content}
+    </div>
+</body>
+</html>`;
+        }
+        
+        // 切换主题
+        function toggleTheme() {
+            currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.body.style.backgroundColor = currentTheme === 'dark' ? '#1a1a1a' : '#fff';
+            document.body.style.color = currentTheme === 'dark' ? '#e1e1e1' : '#333';
+            
+            // 更新预览以应用新主题
+            updatePreview();
+        }
+    </script>
+</body>
+</html>

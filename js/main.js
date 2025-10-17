@@ -8,17 +8,30 @@ let app;
 
 // 等待 DOM 和依赖库加载完成
 document.addEventListener('DOMContentLoaded', () => {
-    // 确保 marked 库已加载
+    // 检查所有必需的依赖
     if (typeof marked === 'undefined') {
         console.error('marked.js 库未加载');
+        document.body.innerHTML = '<div style="padding: 2rem; text-align: center; color: red;">错误：marked.js 库加载失败，请检查网络连接。</div>';
+        return;
+    }
+
+    // 检查类是否已定义
+    if (typeof MarkdownConverter === 'undefined') {
+        console.error('MarkdownConverter 类未定义');
+        document.body.innerHTML = '<div style="padding: 2rem; text-align: center; color: red;">错误：核心类库加载失败。</div>';
         return;
     }
 
     console.log('md2page 应用启动中...');
     
-    // 创建应用实例
-    app = new App();
-    app.init();
+    try {
+        // 创建应用实例
+        app = new App();
+        app.init();
+    } catch (error) {
+        console.error('应用初始化失败:', error);
+        document.body.innerHTML = '<div style="padding: 2rem; text-align: center; color: red;">错误：应用初始化失败 - ' + error.message + '</div>';
+    }
 });
 
 /**

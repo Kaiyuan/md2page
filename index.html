@@ -46,10 +46,29 @@
     <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.min.css">
     
-    <!-- 核心类库 -->
-    <script src="./js/classes.js"></script>
-    
-    <!-- 主应用脚本 -->
-    <script src="./js/main.js"></script>
+    <!-- 等待依赖加载完成后再加载应用 -->
+    <script>
+        // 确保 marked 库已加载
+        function waitForDependencies() {
+            if (typeof marked !== 'undefined') {
+                // 加载核心类库
+                const classesScript = document.createElement('script');
+                classesScript.src = './js/classes.js';
+                classesScript.onload = function() {
+                    // 加载主应用
+                    const mainScript = document.createElement('script');
+                    mainScript.src = './js/main.js';
+                    document.head.appendChild(mainScript);
+                };
+                document.head.appendChild(classesScript);
+            } else {
+                // 如果依赖还没加载完成，等待一下再检查
+                setTimeout(waitForDependencies, 100);
+            }
+        }
+        
+        // 开始等待依赖
+        waitForDependencies();
+    </script>
 </body>
 </html>

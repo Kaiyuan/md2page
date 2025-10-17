@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>md2page 测试</title>
+</head>
+<body>
+    <div id="test-output"></div>
+
+    <!-- 引入 marked.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/marked@9.1.6/marked.min.js"></script>
+    
+    <!-- 核心类库 -->
+    <script src="./js/classes.js"></script>
+    
+    <!-- 测试脚本 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const output = document.getElementById('test-output');
+            
+            try {
+                // 测试 marked 库
+                if (typeof marked === 'undefined') {
+                    throw new Error('marked.js 库未加载');
+                }
+                
+                // 测试类定义
+                if (typeof MarkdownConverter === 'undefined') {
+                    throw new Error('MarkdownConverter 类未定义');
+                }
+                
+                // 创建实例测试
+                const converter = new MarkdownConverter();
+                const result = converter.parseMarkdown('# 测试标题\n\n这是测试内容。');
+                
+                output.innerHTML = `
+                    <h2>测试结果</h2>
+                    <p>✅ marked.js 库加载成功</p>
+                    <p>✅ MarkdownConverter 类定义成功</p>
+                    <p>✅ Markdown 转换测试成功</p>
+                    <h3>转换结果：</h3>
+                    <div style="border: 1px solid #ccc; padding: 1rem; background: #f9f9f9;">
+                        ${result}
+                    </div>
+                `;
+                
+            } catch (error) {
+                output.innerHTML = `
+                    <h2>测试失败</h2>
+                    <p style="color: red;">❌ ${error.message}</p>
+                    <pre>${error.stack}</pre>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>

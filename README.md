@@ -52,6 +52,23 @@
 2. **上传到服务器**：将所有文件上传到 Web 服务器目录
 3. **访问网站**：打开浏览器访问 `index.html`
 
+### 本地测试
+
+如果需要在本地测试，可以使用简单的 HTTP 服务器：
+
+```bash
+# 使用 Python
+python -m http.server 8000
+
+# 使用 Node.js
+npx serve .
+
+# 使用 PHP
+php -S localhost:8000
+```
+
+然后访问 `http://localhost:8000` 或 `http://localhost:8000/test.html`（测试页面）
+
 ### 方式二：本地开发
 
 如果需要进行开发或测试：
