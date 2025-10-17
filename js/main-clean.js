@@ -45,7 +45,6 @@ class App extends EnhancedApp {
         this.themeManager = new ThemeManager();
         this.printOptimizer = new PrintOptimizer();
         this.errorHandler = new ErrorHandler();
-        this.tocGenerator = null;
     }
 
     /**
@@ -98,9 +97,6 @@ class App extends EnhancedApp {
             this.themeToggle = new ThemeToggle(this.themeManager);
             this.themeToggle.createToggleButton(themeContainer);
         }
-
-        // 初始化目录生成器
-        this.tocGenerator = new TOCGenerator();
     }
 
     /**
@@ -253,29 +249,6 @@ class App extends EnhancedApp {
     createFullHtmlDocument(htmlContent, markdownContent) {
         const title = this.fileHandler.extractTitle(markdownContent) || 'Markdown Document';
         
-        // 生成目录
-        const tocGenerator = new TOCGenerator();
-        const tocData = tocGenerator.generateTOC(htmlContent);
-        
-        // 如果有目录，添加目录HTML和相关脚本
-        const tocHtml = tocData.count > 0 ? `
-            <div class="toc-container" id="toc-container">
-                <div class="toc-header">
-                    <h3 class="toc-title">目录</h3>
-                    <button class="toc-toggle" id="toc-toggle" aria-label="切换目录显示">
-                        <span class="toc-icon">📋</span>
-                    </button>
-                    <button class="toc-close" id="toc-close" aria-label="关闭目录">×</button>
-                </div>
-                <div class="toc-content">
-                    ${tocData.html}
-                </div>
-            </div>
-            <div class="toc-overlay" id="toc-overlay"></div>
-        ` : '';
-        
-        const tocScript = tocData.count > 0 ? this.getTOCScript() : '';
-        
         return `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -351,179 +324,11 @@ class App extends EnhancedApp {
         
         @media print {
             body { margin: 0; padding: 1rem; }
-            .toc-container, .toc-overlay { display: none !important; }
-        }
-        
-        /* 目录样式 */
-        .toc-container {
-            position: fixed;
-            top: 0;
-            right: -350px;
-            width: 320px;
-            height: 100vh;
-            background: #ffffff;
-            border-left: 1px solid #e1e5e9;
-            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-            transition: right 0.3s ease;
-            overflow-y: auto;
-        }
-        
-        .toc-container.visible {
-            right: 0;
-        }
-        
-        .toc-header {
-            padding: 1rem;
-            border-bottom: 1px solid #e1e5e9;
-            background: #f8f9fa;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 1;
-        }
-        
-        .toc-title {
-            margin: 0;
-            font-size: 1rem;
-            font-weight: 600;
-            color: #333;
-        }
-        
-        .toc-toggle {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: #007acc;
-            color: white;
-            border: none;
-            cursor: pointer;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-            z-index: 999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            transition: all 0.3s ease;
-        }
-        
-        .toc-toggle:hover {
-            transform: scale(1.1);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-        }
-        
-        .toc-close {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #666;
-            padding: 0.25rem;
-            border-radius: 4px;
-            transition: background-color 0.2s ease;
-        }
-        
-        .toc-close:hover {
-            background-color: #e1e5e9;
-        }
-        
-        .toc-content {
-            padding: 1rem;
-        }
-        
-        .toc-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        
-        .toc-list-sub {
-            list-style: none;
-            padding-left: 1rem;
-            margin: 0.25rem 0;
-        }
-        
-        .toc-item {
-            margin: 0.25rem 0;
-        }
-        
-        .toc-link {
-            display: block;
-            padding: 0.5rem 0.75rem;
-            color: #333;
-            text-decoration: none;
-            border-radius: 4px;
-            font-size: 0.9rem;
-            line-height: 1.3;
-            transition: all 0.2s ease;
-            border-left: 3px solid transparent;
-        }
-        
-        .toc-link:hover {
-            background-color: #f0f0f0;
-            color: #007acc;
-            text-decoration: none;
-        }
-        
-        .toc-link.active {
-            background-color: rgba(0, 122, 204, 0.1);
-            color: #007acc;
-            border-left-color: #007acc;
-            font-weight: 500;
-        }
-        
-        .toc-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-        }
-        
-        .toc-overlay.visible {
-            opacity: 1;
-            visibility: visible;
-        }
-        
-        .heading-highlight {
-            background-color: #fff3cd !important;
-            padding: 0.5rem !important;
-            border-radius: 4px !important;
-            transition: background-color 0.3s ease !important;
-        }
-        
-        @media (max-width: 768px) {
-            .toc-container {
-                width: 100%;
-                right: -100%;
-            }
-            
-            .toc-toggle {
-                top: 15px;
-                right: 15px;
-                width: 45px;
-                height: 45px;
-                font-size: 1.1rem;
-            }
         }
     </style>
 </head>
 <body>
-    ${tocHtml}
-    <div class="document-container">
-        ${htmlContent}
-    </div>
-    ${tocScript}
+    ${htmlContent}
 </body>
 </html>`;
     }
@@ -613,110 +418,5 @@ function hello() {
             // 触发内容更新
             this.debouncedUpdatePreview(demoMarkdown);
         }
-    }
-
-    /**
-     * 获取目录相关的JavaScript代码
-     * @returns {string} JavaScript代码
-     */
-    getTOCScript() {
-        return `
-        <script>
-        (function() {
-            const tocContainer = document.getElementById('toc-container');
-            const tocToggle = document.getElementById('toc-toggle');
-            const tocClose = document.getElementById('toc-close');
-            const tocOverlay = document.getElementById('toc-overlay');
-            const tocLinks = document.querySelectorAll('.toc-link');
-            
-            let isVisible = false;
-            
-            // 检测移动端
-            function isMobile() {
-                return window.innerWidth <= 768;
-            }
-            
-            // 显示/隐藏目录
-            function toggleTOC() {
-                isVisible = !isVisible;
-                tocContainer.classList.toggle('visible', isVisible);
-                tocOverlay.classList.toggle('visible', isVisible);
-                document.body.classList.toggle('toc-open', isVisible);
-            }
-            
-            // 隐藏目录
-            function hideTOC() {
-                isVisible = false;
-                tocContainer.classList.remove('visible');
-                tocOverlay.classList.remove('visible');
-                document.body.classList.remove('toc-open');
-            }
-            
-            // 平滑滚动到目标
-            function scrollToTarget(targetId) {
-                const target = document.getElementById(targetId);
-                if (target) {
-                    target.scrollIntoView({ 
-                        behavior: 'smooth', 
-                        block: 'start' 
-                    });
-                    
-                    // 添加高亮效果
-                    target.classList.add('heading-highlight');
-                    setTimeout(() => {
-                        target.classList.remove('heading-highlight');
-                    }, 2000);
-                    
-                    // 移动端点击后自动隐藏目录
-                    if (isMobile()) {
-                        setTimeout(hideTOC, 300);
-                    }
-                }
-            }
-            
-            // 事件监听
-            if (tocToggle) {
-                tocToggle.addEventListener('click', toggleTOC);
-            }
-            
-            if (tocClose) {
-                tocClose.addEventListener('click', hideTOC);
-            }
-            
-            if (tocOverlay) {
-                tocOverlay.addEventListener('click', hideTOC);
-            }
-            
-            // 目录链接点击事件
-            tocLinks.forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const targetId = this.getAttribute('data-id');
-                    if (targetId) {
-                        scrollToTarget(targetId);
-                        
-                        // 更新活动状态
-                        tocLinks.forEach(l => l.classList.remove('active'));
-                        this.classList.add('active');
-                    }
-                });
-            });
-            
-            // 窗口大小变化处理
-            window.addEventListener('resize', function() {
-                if (!isMobile() && isVisible) {
-                    hideTOC();
-                }
-            });
-            
-            // ESC 键关闭目录
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape' && isVisible) {
-                    hideTOC();
-                }
-            });
-        })();
-        </script>
-        `;
     }
 }

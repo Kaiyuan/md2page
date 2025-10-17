@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>简单测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .test-result {
+            padding: 0.5rem;
+            margin: 0.5rem 0;
+            border-radius: 4px;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <h1>简单测试页面</h1>
+    <div id="results"></div>
+
+    <script>
+        function addResult(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.textContent = message;
+            document.getElementById('results').appendChild(div);
+            console.log(message);
+        }
+
+        // 基本测试
+        addResult('页面加载成功', 'success');
+        
+        // 测试marked库
+        addResult('开始测试依赖库...');
+        
+        // 创建script标签动态加载marked.js
+        const markedScript = document.createElement('script');
+        markedScript.src = 'https://cdn.jsdelivr.net/npm/marked@9.1.6/marked.min.js';
+        markedScript.onload = function() {
+            addResult('✅ marked.js 加载成功', 'success');
+            
+            // 加载classes.js
+            const classesScript = document.createElement('script');
+            classesScript.src = './js/classes.js';
+            classesScript.onload = function() {
+                addResult('✅ classes.js 加载成功', 'success');
+                testClasses();
+            };
+            classesScript.onerror = function() {
+                addResult('❌ classes.js 加载失败', 'error');
+            };
+            document.head.appendChild(classesScript);
+        };
+        markedScript.onerror = function() {
+            addResult('❌ marked.js 加载失败', 'error');
+        };
+        document.head.appendChild(markedScript);
+
+        function testClasses() {
+            try {
+                addResult('开始测试类定义...');
+                
+                // 测试MarkdownConverter
+                if (typeof MarkdownConverter === 'function') {
+                    addResult('✅ MarkdownConverter 类定义正确', 'success');
+                    
+                    const converter = new MarkdownConverter();
+                    addResult('✅ MarkdownConverter 实例创建成功', 'success');
+                    
+                    const html = converter.parseMarkdown('# 测试');
+                    if (html.includes('<h1')) {
+                        addResult('✅ Markdown 解析功能正常', 'success');
+                    } else {
+                        addResult('❌ Markdown 解析功能异常', 'error');
+                    }
+                } else {
+                    addResult('❌ MarkdownConverter 类未定义', 'error');
+                }
+                
+                // 测试其他类
+                const classes = ['FileHandler', 'ThemeManager', 'PrintOptimizer', 'ErrorHandler'];
+                classes.forEach(className => {
+                    if (typeof window[className] === 'function') {
+                        addResult(`✅ ${className} 类定义正确`, 'success');
+                        try {
+                            new window[className]();
+                            addResult(`✅ ${className} 实例创建成功`, 'success');
+                        } catch (e) {
+                            addResult(`❌ ${className} 实例创建失败: ${e.message}`, 'error');
+                        }
+                    } else {
+                        addResult(`❌ ${className} 类未定义`, 'error');
+                    }
+                });
+                
+                addResult('🎉 测试完成！', 'success');
+                
+            } catch (error) {
+                addResult(`❌ 测试过程中发生错误: ${error.message}`, 'error');
+                console.error('详细错误:', error);
+            }
+        }
+
+        // 全局错误处理
+        window.addEventListener('error', function(e) {
+            addResult(`❌ 全局错误: ${e.message} (${e.filename}:${e.lineno})`, 'error');
+        });
+    </script>
+</body>
+</html>

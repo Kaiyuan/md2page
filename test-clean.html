@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>测试页面</title>
+    <title>清理版本测试</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -35,135 +35,115 @@
             font-size: 0.9rem;
         }
         
-        .loading {
-            color: #666;
-        }
-        
-        .success {
-            color: #28a745;
-        }
-        
-        .error {
-            color: #dc3545;
-        }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+        .info { color: #17a2b8; }
     </style>
 </head>
 <body>
-    <div id="app">
-        <h1>类库测试页面</h1>
-        <div id="test-results">
-            <p>正在测试类库...</p>
-        </div>
-        <div id="input-panel"></div>
-        <div id="preview-panel"></div>
-        <div class="app-footer"></div>
+    <h1>清理版本类库测试</h1>
+    <div id="test-results">
+        <p>正在测试清理版本的类库...</p>
     </div>
 
     <!-- 引入 marked.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/marked@9.1.6/marked.min.js"></script>
     
-    <!-- 引入 Prism.js CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
-    
-    <!-- 应用脚本 -->
-    <script src="./js/classes.js"></script>
+    <!-- 应用脚本 - 使用清理版本 -->
+    <script src="./js/classes-clean.js"></script>
     
     <script>
-        // 添加页面加载完成的提示
         document.addEventListener('DOMContentLoaded', function() {
             const resultsDiv = document.getElementById('test-results');
             
-            function addResult(message, isError = false) {
+            function addResult(message, type = 'info') {
                 const p = document.createElement('p');
                 p.textContent = message;
-                p.style.color = isError ? 'red' : 'green';
+                p.className = type;
                 resultsDiv.appendChild(p);
                 console.log(message);
             }
             
-            addResult('页面加载完成，开始测试...');
+            addResult('页面加载完成，开始测试清理版本...', 'info');
             
             // 检查依赖库
             if (typeof marked === 'undefined') {
-                addResult('❌ marked.js 库未加载', true);
+                addResult('❌ marked.js 库未加载', 'error');
                 return;
             } else {
-                addResult('✅ marked.js 库加载成功');
+                addResult('✅ marked.js 库加载成功', 'success');
             }
             
-            // 测试类是否正确定义
-            addResult('开始测试类定义...');
-            
+            // 测试类定义
             const classTests = [
                 ['MarkdownConverter', MarkdownConverter],
                 ['FileHandler', FileHandler],
                 ['ThemeManager', ThemeManager],
                 ['PrintOptimizer', PrintOptimizer],
-                ['ErrorHandler', ErrorHandler],
-                ['InputPanel', InputPanel],
-                ['PreviewPanel', PreviewPanel],
-                ['ThemeToggle', ThemeToggle],
-                ['EnhancedApp', EnhancedApp],
-                ['StatusBar', StatusBar]
+                ['ErrorHandler', ErrorHandler]
             ];
             
             let allClassesDefined = true;
             
             classTests.forEach(([name, cls]) => {
                 if (typeof cls === 'function') {
-                    addResult(`✅ ${name} 类定义正确`);
+                    addResult(`✅ ${name} 类定义正确`, 'success');
                 } else {
-                    addResult(`❌ ${name} 类未定义或不是函数`, true);
+                    addResult(`❌ ${name} 类未定义或不是函数`, 'error');
                     allClassesDefined = false;
                 }
             });
             
             if (!allClassesDefined) {
-                addResult('❌ 部分类未正确定义，停止测试', true);
+                addResult('❌ 部分类未正确定义，停止测试', 'error');
                 return;
             }
             
-            // 测试创建实例
-            addResult('开始测试实例创建...');
+            // 测试实例创建
+            addResult('开始测试实例创建...', 'info');
             
             try {
                 const converter = new MarkdownConverter();
-                addResult('✅ MarkdownConverter 实例创建成功');
+                addResult('✅ MarkdownConverter 实例创建成功', 'success');
                 
                 const fileHandler = new FileHandler();
-                addResult('✅ FileHandler 实例创建成功');
+                addResult('✅ FileHandler 实例创建成功', 'success');
                 
                 const themeManager = new ThemeManager();
-                addResult('✅ ThemeManager 实例创建成功');
+                addResult('✅ ThemeManager 实例创建成功', 'success');
                 
                 const printOptimizer = new PrintOptimizer();
-                addResult('✅ PrintOptimizer 实例创建成功');
+                addResult('✅ PrintOptimizer 实例创建成功', 'success');
                 
                 const errorHandler = new ErrorHandler();
-                addResult('✅ ErrorHandler 实例创建成功');
+                addResult('✅ ErrorHandler 实例创建成功', 'success');
                 
-                const app = new EnhancedApp();
-                addResult('✅ EnhancedApp 实例创建成功');
-                
-                addResult('🎉 所有类都正常工作！');
+                addResult('🎉 所有类都正常工作！', 'success');
                 
                 // 测试基本功能
-                addResult('开始测试基本功能...');
-                const testMarkdown = '# 测试标题\n\n这是一个测试段落。';
+                addResult('开始测试基本功能...', 'info');
+                const testMarkdown = '# 测试标题\n\n这是一个测试段落。\n\n## 二级标题\n\n- 列表项1\n- 列表项2';
                 const html = converter.parseMarkdown(testMarkdown);
                 
-                if (html && html.includes('<h1')) {
-                    addResult('✅ Markdown 解析测试成功');
-                    addResult(`解析结果: ${html.substring(0, 100)}...`);
+                if (html && html.includes('<h1') && html.includes('<h2') && html.includes('<ul>')) {
+                    addResult('✅ Markdown 解析测试成功', 'success');
+                    addResult(`解析结果预览: ${html.substring(0, 100)}...`, 'info');
                 } else {
-                    addResult('❌ Markdown 解析测试失败', true);
+                    addResult('❌ Markdown 解析测试失败', 'error');
                 }
                 
-                addResult('🎉 所有测试完成！');
+                // 测试主题管理
+                const currentTheme = themeManager.getCurrentTheme();
+                addResult(`✅ 当前主题: ${currentTheme}`, 'success');
+                
+                // 测试文件名生成
+                const filename = fileHandler.generateFilename(html);
+                addResult(`✅ 生成文件名: ${filename}`, 'success');
+                
+                addResult('🎉 所有测试完成！清理版本工作正常！', 'success');
                 
             } catch (error) {
-                addResult(`❌ 实例创建或功能测试失败: ${error.message}`, true);
+                addResult(`❌ 测试失败: ${error.message}`, 'error');
                 console.error('详细错误:', error);
             }
         });
@@ -174,7 +154,7 @@
             if (resultsDiv) {
                 const p = document.createElement('p');
                 p.textContent = `❌ 全局错误: ${e.message}`;
-                p.style.color = 'red';
+                p.className = 'error';
                 resultsDiv.appendChild(p);
             }
             console.error('全局错误:', e);

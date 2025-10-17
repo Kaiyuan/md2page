@@ -1,77 +1,104 @@
 /**
  * 目录生成器
- * 负责从 HTML 内容生成目录结构
+ * 负责从 HTML 内容中提取标题并生成层级化的目录结构
  */
-
 export class TOCGenerator {
     constructor() {
-        this.headingSelector = 'h1, h2, h3, h4, h5, h6';
-        this.maxDepth = 6;
-        this.minHeadings = 2; // 最少标题数量才显示目录
+        this.headings = [];
+        this.tocHTML = '';
+        this.minLevel = 1;
+        this.maxLevel = 6;
     }
 
     /**
-     * 从 HTML 内容生成目录
+     * 从 HTML 内容中生成目录
      * @param {string} htmlContent HTML 内容
-     * @returns {Array<Object>} 目录项数组
+     * @param {Object} options 配置选项
+     * @returns {Object} 目录数据和 HTML
      */
-    generateTOC(htmlContent) {
-        if (!htmlContent || typeof htmlContent !== 'string') {
-            return [];
-        }
+    generateTOC(htmlContent, options = {}) {
+        const {
+            minLevel = 1,
+            maxLevel = 6,
+            includeLevel = null,
+            excludeLevel = null,
+            addIds = true
+        } = options;
 
-        // 创建临时 DOM 元素来解析 HTML
+        this.minLevel = minLevel;
+        this.maxLevel = maxLevel;
+
+        // 解析标题
+        this.headings = this.extractHeadings(htmlContent, {
+            includeLevel,
+            excludeLevel,
+            addIds
+        });
+
+        // 生成目录 HTML
+        this.tocHTML = this.generateTOCHTML(this.headings);
+
+        return {
+            headings: this.headings,
+            html: this.tocHTML,
+            count: this.headings.length,
+            levels: this.getLevelStats()
+        };
+    }
+
+    /**
+     * 从 HTML 中提取标题
+     * @param {string} htmlContent HTML 内容
+     * @param {Object} options 选项
+     * @returns {Array} 标题数组
+     */
+    extractHeadings(htmlContent, options = {}) {
+        const { includeLevel, excludeLevel, addIds } = options;
+        const headings = [];
+        
+        // 创建临时 DOM 来解析 HTML
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = htmlContent;
 
         // 查找所有标题元素
-        const headings = tempDiv.querySelectorAll(this.headingSelector);
+        const headingElements = tempDiv.querySelectorAll('h1, h2, h3, h4, h5, h6');
         
-        if (headings.length < this.minHeadings) {
-            return [];
-        }
-
-        // 转换为目录项数组
-        const tocItems = Array.from(headings).map((heading, index) => {
-            const level = parseInt(heading.tagName.charAt(1));
-            const text = this.extractHeadingText(heading);
-            const id = this.generateHeadingId(text, index);
-
-            // 确保标题有 ID
-            if (!heading.id) {
-                heading.id = id;
+        headingElements.forEach((element, index) => {
+            const level = parseInt(element.tagName.charAt(1));
+            
+            // 检查级别过滤
+            if (level < this.minLevel || level > this.maxLevel) {
+                return;
+            }
+            
+            if (includeLevel && !includeLevel.includes(level)) {
+                return;
+            }
+            
+            if (excludeLevel && excludeLevel.includes(level)) {
+                return;
             }
 
-            return {
-                id: heading.id || id,
-                text: text,
-                level: level,
-                element: heading,
-                children: []
-            };
+            const text = element.textContent.trim();
+            if (!text) return;
+
+            // 生成或获取 ID
+            let id = element.id;
+            if (!id && addIds) {
+                id = this.generateHeadingId(text, index);
+                element.id = id;
+            }
+
+            headings.push({
+                level,
+                text,
+                id,
+                element,
+                index
+            });
         });
 
-        // 构建层级结构
-        return this.buildHierarchy(tocItems);
-    }
-
-    /**
-     * 提取标题文本
-     * @param {HTMLElement} heading 标题元素
-     * @returns {string} 标题文本
-     */
-    extractHeadingText(heading) {
-        // 移除可能的链接标签，只保留文本
-        const clone = heading.cloneNode(true);
-        
-        // 移除所有链接
-        const links = clone.querySelectorAll('a');
-        links.forEach(link => {
-            link.replaceWith(link.textContent);
-        });
-
-        // 移除其他可能的标签，保留纯文本
-        return clone.textContent.trim();
+        return headings;
     }
 
     /**
@@ -81,101 +108,108 @@ export class TOCGenerator {
      * @returns {string} 生成的 ID
      */
     generateHeadingId(text, index) {
-        if (!text) {
-            return `heading-${index}`;
-        }
-
-        // 生成 URL 友好的 ID
+        // 基础 ID 生成
         let id = text
             .toLowerCase()
-            // 保留中文字符和字母数字
-            .replace(/[^\w\u4e00-\u9fa5]+/g, '-')
-            // 移除开头和结尾的连字符
-            .replace(/^-+|-+$/g, '')
-            // 限制长度
-            .substring(0, 50);
+            .replace(/[^\w\u4e00-\u9fa5\s-]/g, '') // 保留字母、数字、中文、空格和连字符
+            .replace(/\s+/g, '-') // 空格转连字符
+            .replace(/-+/g, '-') // 多个连字符合并
+            .replace(/^-+|-+$/g, ''); // 移除首尾连字符
 
-        // 如果 ID 为空或太短，使用索引
+        // 如果 ID 为空或太短，使用备用方案
         if (!id || id.length < 2) {
-            id = `heading-${index}`;
+            id = `heading-${index + 1}`;
         }
 
-        return id;
+        // 确保 ID 唯一性
+        const existingIds = this.headings.map(h => h.id).filter(Boolean);
+        let finalId = id;
+        let counter = 1;
+        
+        while (existingIds.includes(finalId)) {
+            finalId = `${id}-${counter}`;
+            counter++;
+        }
+
+        return finalId;
     }
 
     /**
-     * 构建层级结构
-     * @param {Array<Object>} tocItems 扁平的目录项数组
-     * @returns {Array<Object>} 层级化的目录项数组
+     * 生成目录 HTML
+     * @param {Array} headings 标题数组
+     * @returns {string} 目录 HTML
      */
-    buildHierarchy(tocItems) {
-        if (!tocItems || tocItems.length === 0) {
-            return [];
+    generateTOCHTML(headings) {
+        if (!headings || headings.length === 0) {
+            return '<div class=\"toc-empty\">暂无目录</div>';
         }
 
-        const result = [];
+        const tocTree = this.buildTOCTree(headings);
+        return this.renderTOCTree(tocTree);
+    }
+
+    /**
+     * 构建目录树结构
+     * @param {Array} headings 标题数组
+     * @returns {Array} 目录树
+     */
+    buildTOCTree(headings) {
+        const tree = [];
         const stack = [];
 
-        tocItems.forEach(item => {
-            // 清空 children 数组
-            item.children = [];
+        headings.forEach(heading => {
+            const tocItem = {
+                ...heading,
+                children: []
+            };
 
             // 找到合适的父级
-            while (stack.length > 0 && stack[stack.length - 1].level >= item.level) {
+            while (stack.length > 0 && stack[stack.length - 1].level >= heading.level) {
                 stack.pop();
             }
 
             if (stack.length === 0) {
                 // 顶级项目
-                result.push(item);
+                tree.push(tocItem);
             } else {
                 // 子项目
-                stack[stack.length - 1].children.push(item);
+                stack[stack.length - 1].children.push(tocItem);
             }
 
-            stack.push(item);
+            stack.push(tocItem);
         });
 
-        return result;
+        return tree;
     }
 
     /**
-     * 渲染目录 HTML
-     * @param {Array<Object>} tocItems 目录项数组
-     * @param {Object} options 渲染选项
-     * @returns {string} 目录 HTML
+     * 渲染目录树为 HTML
+     * @param {Array} tree 目录树
+     * @param {number} depth 当前深度
+     * @returns {string} HTML 字符串
      */
-    renderTOC(tocItems, options = {}) {
-        const {
-            className = 'toc',
-            showNumbers = false,
-            maxDepth = this.maxDepth,
-            currentDepth = 1
-        } = options;
-
-        if (!tocItems || tocItems.length === 0 || currentDepth > maxDepth) {
+    renderTOCTree(tree, depth = 0) {
+        if (!tree || tree.length === 0) {
             return '';
         }
 
-        let html = `<ul class="${className}${currentDepth === 1 ? '' : '-sub'}">`;
+        const listClass = depth === 0 ? 'toc-list' : 'toc-list-sub';
+        let html = `<ul class=\"${listClass}\">`;
 
-        tocItems.forEach((item, index) => {
+        tree.forEach(item => {
+            const levelClass = `toc-level-${item.level}`;
             const hasChildren = item.children && item.children.length > 0;
-            const number = showNumbers ? `${index + 1}. ` : '';
             
-            html += `
-                <li class="toc-item toc-level-${item.level}" data-level="${item.level}">
-                    <a href="#${item.id}" class="toc-link" data-target="${item.id}">
-                        ${number}${this.escapeHtml(item.text)}
-                    </a>
-            `;
+            html += `<li class=\"toc-item ${levelClass}\">`;
+            
+            if (item.id) {
+                html += `<a href=\"#${item.id}\" class=\"toc-link\" data-level=\"${item.level}\" data-id=\"${item.id}\">${this.escapeHtml(item.text)}</a>`;
+            } else {
+                html += `<span class=\"toc-text\" data-level=\"${item.level}\">${this.escapeHtml(item.text)}</span>`;
+            }
 
-            // 递归渲染子项目
-            if (hasChildren && currentDepth < maxDepth) {
-                html += this.renderTOC(item.children, {
-                    ...options,
-                    currentDepth: currentDepth + 1
-                });
+            if (hasChildren) {
+                html += this.renderTOCTree(item.children, depth + 1);
             }
 
             html += '</li>';
@@ -186,152 +220,76 @@ export class TOCGenerator {
     }
 
     /**
-     * 设置滚动监听
-     * @param {Array<Object>} tocItems 目录项数组
-     * @param {Object} options 选项
+     * 获取级别统计信息
+     * @returns {Object} 级别统计
      */
-    setupScrollSpy(tocItems, options = {}) {
-        const {
-            offset = 100,
-            activeClass = 'active',
-            container = window
-        } = options;
-
-        if (!tocItems || tocItems.length === 0) {
-            return;
+    getLevelStats() {
+        const stats = {};
+        
+        for (let i = 1; i <= 6; i++) {
+            stats[`h${i}`] = 0;
         }
 
-        // 获取所有标题元素
-        const headings = tocItems.map(item => {
-            const element = document.getElementById(item.id);
-            return element ? { element, id: item.id } : null;
-        }).filter(Boolean);
+        this.headings.forEach(heading => {
+            stats[`h${heading.level}`]++;
+        });
 
-        if (headings.length === 0) {
-            return;
-        }
-
-        let ticking = false;
-
-        const updateActiveHeading = () => {
-            const scrollTop = container === window 
-                ? window.pageYOffset || document.documentElement.scrollTop
-                : container.scrollTop;
-
-            let activeHeading = null;
-
-            // 找到当前可见的标题
-            for (let i = headings.length - 1; i >= 0; i--) {
-                const heading = headings[i];
-                const rect = heading.element.getBoundingClientRect();
-                const elementTop = container === window 
-                    ? rect.top + scrollTop
-                    : rect.top + container.scrollTop;
-
-                if (scrollTop >= elementTop - offset) {
-                    activeHeading = heading;
-                    break;
-                }
-            }
-
-            // 更新目录项的激活状态
-            this.updateTOCActiveState(activeHeading ? activeHeading.id : null, activeClass);
-            
-            ticking = false;
-        };
-
-        const onScroll = () => {
-            if (!ticking) {
-                requestAnimationFrame(updateActiveHeading);
-                ticking = true;
-            }
-        };
-
-        // 添加滚动监听
-        container.addEventListener('scroll', onScroll, { passive: true });
-
-        // 初始更新
-        updateActiveHeading();
-
-        // 返回清理函数
-        return () => {
-            container.removeEventListener('scroll', onScroll);
-        };
+        return stats;
     }
 
     /**
-     * 更新目录激活状态
-     * @param {string} activeId 当前激活的标题 ID
-     * @param {string} activeClass 激活状态的 CSS 类名
+     * 获取目录的纯文本版本
+     * @param {Array} tree 目录树
+     * @param {string} indent 缩进字符
+     * @returns {string} 纯文本目录
      */
-    updateTOCActiveState(activeId, activeClass = 'active') {
-        // 移除所有激活状态
-        const allTocLinks = document.querySelectorAll('.toc-link');
-        allTocLinks.forEach(link => {
-            link.classList.remove(activeClass);
-            const listItem = link.closest('.toc-item');
-            if (listItem) {
-                listItem.classList.remove(activeClass);
-            }
-        });
-
-        // 添加当前激活状态
-        if (activeId) {
-            const activeLink = document.querySelector(`.toc-link[data-target="${activeId}"]`);
-            if (activeLink) {
-                activeLink.classList.add(activeClass);
-                const listItem = activeLink.closest('.toc-item');
-                if (listItem) {
-                    listItem.classList.add(activeClass);
-                }
-            }
+    getPlainTextTOC(tree = null, indent = '') {
+        if (!tree) {
+            tree = this.buildTOCTree(this.headings);
         }
-    }
 
-    /**
-     * 设置目录点击事件
-     * @param {Object} options 选项
-     */
-    setupTOCClicks(options = {}) {
-        const {
-            behavior = 'smooth',
-            offset = 80
-        } = options;
-
-        // 使用事件委托处理点击
-        document.addEventListener('click', (e) => {
-            const tocLink = e.target.closest('.toc-link');
-            if (!tocLink) return;
-
-            e.preventDefault();
+        let text = '';
+        
+        tree.forEach(item => {
+            text += `${indent}- ${item.text}\n`;
             
-            const targetId = tocLink.getAttribute('data-target');
-            const targetElement = document.getElementById(targetId);
-            
-            if (targetElement) {
-                this.scrollToElement(targetElement, { behavior, offset });
+            if (item.children && item.children.length > 0) {
+                text += this.getPlainTextTOC(item.children, indent + '  ');
             }
         });
+
+        return text;
     }
 
     /**
-     * 滚动到指定元素
-     * @param {HTMLElement} element 目标元素
-     * @param {Object} options 滚动选项
+     * 查找指定 ID 的标题
+     * @param {string} id 标题 ID
+     * @returns {Object|null} 标题对象
      */
-    scrollToElement(element, options = {}) {
-        const {
-            behavior = 'smooth',
-            offset = 80
-        } = options;
+    findHeadingById(id) {
+        return this.headings.find(heading => heading.id === id) || null;
+    }
 
-        const elementTop = element.getBoundingClientRect().top + window.pageYOffset;
-        const targetPosition = elementTop - offset;
+    /**
+     * 获取下一个/上一个标题
+     * @param {string} currentId 当前标题 ID
+     * @param {string} direction 方向 ('next' 或 'prev')
+     * @returns {Object|null} 标题对象
+     */
+    getAdjacentHeading(currentId, direction = 'next') {
+        const currentIndex = this.headings.findIndex(h => h.id === currentId);
+        
+        if (currentIndex === -1) {
+            return null;
+        }
 
-        window.scrollTo({
-            top: targetPosition,
-            behavior: behavior
-        });
+        const targetIndex = direction === 'next' ? currentIndex + 1 : currentIndex - 1;
+        
+        if (targetIndex < 0 || targetIndex >= this.headings.length) {
+            return null;
+        }
+
+        return this.headings[targetIndex];
     }
 
     /**
@@ -346,54 +304,10 @@ export class TOCGenerator {
     }
 
     /**
-     * 获取目录统计信息
-     * @param {Array<Object>} tocItems 目录项数组
-     * @returns {Object} 统计信息
+     * 清理资源
      */
-    getTOCStats(tocItems) {
-        if (!tocItems || tocItems.length === 0) {
-            return {
-                totalItems: 0,
-                maxDepth: 0,
-                levelCounts: {}
-            };
-        }
-
-        const stats = {
-            totalItems: 0,
-            maxDepth: 0,
-            levelCounts: {}
-        };
-
-        const countItems = (items) => {
-            items.forEach(item => {
-                stats.totalItems++;
-                stats.maxDepth = Math.max(stats.maxDepth, item.level);
-                stats.levelCounts[item.level] = (stats.levelCounts[item.level] || 0) + 1;
-                
-                if (item.children && item.children.length > 0) {
-                    countItems(item.children);
-                }
-            });
-        };
-
-        countItems(tocItems);
-        return stats;
-    }
-
-    /**
-     * 设置最小标题数量
-     * @param {number} count 最小数量
-     */
-    setMinHeadings(count) {
-        this.minHeadings = Math.max(1, count);
-    }
-
-    /**
-     * 设置最大深度
-     * @param {number} depth 最大深度
-     */
-    setMaxDepth(depth) {
-        this.maxDepth = Math.max(1, Math.min(6, depth));
+    destroy() {
+        this.headings = [];
+        this.tocHTML = '';
     }
 }

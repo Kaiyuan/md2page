@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>语法测试</title>
+</head>
+<body>
+    <h1>语法测试</h1>
+    <div id="output"></div>
+    
+    <script>
+        const output = document.getElementById('output');
+        
+        function log(message) {
+            const p = document.createElement('p');
+            p.textContent = message;
+            output.appendChild(p);
+            console.log(message);
+        }
+        
+        log('开始语法测试...');
+        
+        // 尝试加载classes.js
+        const script = document.createElement('script');
+        script.src = './js/classes.js';
+        
+        script.onload = function() {
+            log('✅ classes.js 语法正确，加载成功');
+        };
+        
+        script.onerror = function() {
+            log('❌ classes.js 加载失败，可能有语法错误');
+        };
+        
+        document.head.appendChild(script);
+        
+        // 监听语法错误
+        window.addEventListener('error', function(e) {
+            log(`❌ 语法错误: ${e.message} 在 ${e.filename}:${e.lineno}`);
+        });
+    </script>
+</body>
+</html>

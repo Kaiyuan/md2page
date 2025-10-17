@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>目录功能测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .test-result {
+            padding: 0.5rem;
+            margin: 0.5rem 0;
+            border-radius: 4px;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        
+        .demo-content {
+            border: 1px solid #ddd;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 6px;
+            background: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <h1>目录功能测试</h1>
+    <div id="results"></div>
+    
+    <div class="demo-content">
+        <h2>测试内容预览</h2>
+        <div id="demo-html"></div>
+    </div>
+
+    <!-- 引入 marked.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/marked@9.1.6/marked.min.js"></script>
+    
+    <!-- 应用脚本 -->
+    <script src="./js/classes.js"></script>
+
+    <script>
+        function addResult(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.textContent = message;
+            document.getElementById('results').appendChild(div);
+            console.log(message);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            addResult('开始目录功能测试...', 'info');
+            
+            // 检查TOCGenerator类
+            if (typeof TOCGenerator === 'function') {
+                addResult('✅ TOCGenerator 类定义正确', 'success');
+                
+                try {
+                    const tocGenerator = new TOCGenerator();
+                    addResult('✅ TOCGenerator 实例创建成功', 'success');
+                    
+                    // 测试目录生成
+                    const testMarkdown = \`# 第一章 介绍
+
+这是第一章的内容。
+
+## 1.1 概述
+
+这是概述部分。
+
+## 1.2 特性
+
+这是特性介绍。
+
+### 1.2.1 核心特性
+
+核心特性说明。
+
+### 1.2.2 扩展特性
+
+扩展特性说明。
+
+# 第二章 使用方法
+
+这是第二章的内容。
+
+## 2.1 快速开始
+
+快速开始指南。
+
+## 2.2 高级用法
+
+高级用法说明。\`;
+
+                    // 转换为HTML
+                    const converter = new MarkdownConverter();
+                    const html = converter.parseMarkdown(testMarkdown);
+                    
+                    addResult('✅ 测试内容转换成功', 'success');
+                    
+                    // 生成目录
+                    const tocData = tocGenerator.generateTOC(html);
+                    
+                    if (tocData.count > 0) {
+                        addResult(\`✅ 目录生成成功，找到 \${tocData.count} 个标题\`, 'success');
+                        addResult(\`标题列表: \${tocData.headings.map(h => h.text).join(', ')}\`, 'info');
+                        
+                        // 显示生成的HTML和目录
+                        document.getElementById('demo-html').innerHTML = \`
+                            <h3>生成的HTML内容：</h3>
+                            <div style="border: 1px solid #ccc; padding: 1rem; background: white;">
+                                \${html}
+                            </div>
+                            
+                            <h3>生成的目录：</h3>
+                            <div style="border: 1px solid #ccc; padding: 1rem; background: white;">
+                                \${tocData.html}
+                            </div>
+                        \`;
+                        
+                        addResult('✅ 目录HTML生成成功', 'success');
+                    } else {
+                        addResult('❌ 目录生成失败，没有找到标题', 'error');
+                    }
+                    
+                    addResult('🎉 目录功能测试完成！', 'success');
+                    
+                } catch (error) {
+                    addResult(\`❌ 目录功能测试失败: \${error.message}\`, 'error');
+                    console.error('详细错误:', error);
+                }
+            } else {
+                addResult('❌ TOCGenerator 类未定义', 'error');
+            }
+        });
+    </script>
+</body>
+</html>
