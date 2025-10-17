@@ -74,16 +74,22 @@ class App {
      * 初始化组件
      */
     initComponents() {
+        console.log('开始初始化组件...');
+        
         // 初始化输入面板
         const inputContainer = document.getElementById('input-panel');
         if (inputContainer) {
+            console.log('创建 InputPanel 实例...');
             this.inputPanel = new InputPanel(inputContainer);
             this.inputPanel.render();
+            console.log('输入面板渲染完成');
             
             // 设置错误处理回调
             this.inputPanel.setOnError((error) => {
                 this.errorHandler.showFileError(error);
             });
+        } else {
+            console.error('未找到输入面板容器 #input-panel');
         }
 
         // 初始化预览面板

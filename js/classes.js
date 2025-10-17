@@ -582,6 +582,52 @@ class ThemeManager {
     }
 
     /**
+     * 获取主题图标
+     * @param {string} theme 主题名称
+     * @returns {string} 主题图标
+     */
+    getThemeIcon(theme = this.currentTheme) {
+        const icons = {
+            'light': '☀️',
+            'dark': '🌙',
+            'auto': '🔄'
+        };
+        return icons[theme] || '🔄';
+    }
+
+    /**
+     * 获取主题名称
+     * @param {string} theme 主题名称
+     * @returns {string} 主题名称
+     */
+    getThemeName(theme = this.currentTheme) {
+        const names = {
+            'light': '亮色主题',
+            'dark': '暗色主题',
+            'auto': '跟随系统'
+        };
+        return names[theme] || '未知主题';
+    }
+
+    /**
+     * 添加监听器
+     * @param {Function} callback 回调函数
+     * @returns {Function} 移除监听器的函数
+     */
+    addListener(callback) {
+        if (typeof callback !== 'function') {
+            return () => {};
+        }
+        this.listeners.push(callback);
+        return () => {
+            const index = this.listeners.indexOf(callback);
+            if (index > -1) {
+                this.listeners.splice(index, 1);
+            }
+        };
+    }
+
+    /**
      * 获取主题信息
      * @returns {Object} 主题信息对象
      */
