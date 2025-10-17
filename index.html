@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>md2page - Markdown 转 HTML 转换器</title>
+    <link rel="stylesheet" href="/src/styles/themes.css">
+    <link rel="stylesheet" href="/src/styles/main.css">
+    <link rel="stylesheet" href="/src/styles/print.css" media="print">
+</head>
+<body>
+    <div id="app">
+        <header class="app-header">
+            <div class="header-content">
+                <h1>md2page</h1>
+                <div class="header-controls">
+                    <!-- 主题切换按钮将在这里动态创建 -->
+                    <button id="print-btn" class="print-btn" disabled>
+                        <span>🖨️</span>
+                        打印
+                    </button>
+                    <button id="download-btn" class="download-btn" disabled>
+                        <span>⬇️</span>
+                        下载 HTML
+                    </button>
+                </div>
+            </div>
+        </header>
+        
+        <main class="app-main">
+            <div class="input-panel" id="input-panel">
+                <!-- 输入面板内容将由 JavaScript 生成 -->
+            </div>
+            
+            <div class="preview-panel" id="preview-panel">
+                <!-- 预览面板内容将由 JavaScript 生成 -->
+            </div>
+        </main>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+</body>
+</html>

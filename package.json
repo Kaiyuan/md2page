@@ -1,0 +1,30 @@
+{
+  "name": "md2page",
+  "version": "1.0.0",
+  "description": "纯前端 Markdown 转 HTML 转换器",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage",
+    "serve": "vite preview --port 4173",
+    "deploy:gh": "npm run build && gh-pages -d dist"
+  },
+  "dependencies": {
+    "marked": "^9.1.6",
+    "prismjs": "^1.29.0"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0",
+    "vitest": "^1.0.0",
+    "@vitest/ui": "^1.0.0",
+    "jsdom": "^23.0.0",
+    "gh-pages": "^6.0.0"
+  },
+  "keywords": ["markdown", "html", "converter"],
+  "author": "",
+  "license": "MIT"
+}

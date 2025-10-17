@@ -1,0 +1,323 @@
+/**
+ * 主题系统 CSS 变量
+ * 支持亮色和暗色主题
+ */
+
+/* 根变量 - 默认亮色主题 */
+:root {
+    /* 基础颜色 */
+    --primary-color: #007acc;
+    --primary-hover: #005a9e;
+    --secondary-color: #6c757d;
+    --success-color: #28a745;
+    --warning-color: #ffc107;
+    --error-color: #dc3545;
+    --info-color: #17a2b8;
+
+    /* 背景颜色 */
+    --bg-color: #ffffff;
+    --panel-bg: #ffffff;
+    --panel-header-bg: #f8f9fa;
+    --header-bg: #ffffff;
+    --footer-bg: #f8f9fa;
+    --toc-bg: #f8f9fa;
+
+    /* 文字颜色 */
+    --text-color: #333333;
+    --text-muted: #6c757d;
+    --heading-color: #2c3e50;
+    --link-color: #007acc;
+
+    /* 边框颜色 */
+    --border-color: #e1e1e1;
+    --border-light: #f1f3f4;
+
+    /* 按钮颜色 */
+    --button-bg: #ffffff;
+    --button-text: #333333;
+    --button-border: #e1e1e1;
+    --button-hover-bg: #f8f9fa;
+
+    /* 输入框颜色 */
+    --input-bg: #ffffff;
+    --input-border: #e1e1e1;
+    --input-focus: #007acc;
+
+    /* 代码颜色 */
+    --code-bg: #f1f3f4;
+    --code-text: #333333;
+    --code-block-bg: #f8f9fa;
+    --code-block-text: #333333;
+
+    /* 引用块颜色 */
+    --blockquote-bg: #f8f9fa;
+    --blockquote-border: #007acc;
+
+    /* 表格颜色 */
+    --table-header-bg: #f8f9fa;
+    --table-border: #e1e1e1;
+
+    /* 阴影 */
+    --shadow-light: 0 2px 4px rgba(0, 0, 0, 0.1);
+    --shadow-medium: 0 4px 8px rgba(0, 0, 0, 0.15);
+    --shadow-heavy: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* 暗色主题 */
+[data-theme="dark"] {
+    /* 基础颜色 */
+    --primary-color: #4fc3f7;
+    --primary-hover: #29b6f6;
+    --secondary-color: #90a4ae;
+    --success-color: #66bb6a;
+    --warning-color: #ffb74d;
+    --error-color: #f06292;
+    --info-color: #4dd0e1;
+
+    /* 背景颜色 */
+    --bg-color: #1a1a1a;
+    --panel-bg: #2d2d2d;
+    --panel-header-bg: #3a3a3a;
+    --header-bg: #2d2d2d;
+    --footer-bg: #3a3a3a;
+    --toc-bg: #3a3a3a;
+
+    /* 文字颜色 */
+    --text-color: #e1e1e1;
+    --text-muted: #b0b0b0;
+    --heading-color: #ffffff;
+    --link-color: #4fc3f7;
+
+    /* 边框颜色 */
+    --border-color: #444444;
+    --border-light: #555555;
+
+    /* 按钮颜色 */
+    --button-bg: #3a3a3a;
+    --button-text: #e1e1e1;
+    --button-border: #444444;
+    --button-hover-bg: #4a4a4a;
+
+    /* 输入框颜色 */
+    --input-bg: #2d2d2d;
+    --input-border: #444444;
+    --input-focus: #4fc3f7;
+
+    /* 代码颜色 */
+    --code-bg: #3a3a3a;
+    --code-text: #e1e1e1;
+    --code-block-bg: #2d2d2d;
+    --code-block-text: #e1e1e1;
+
+    /* 引用块颜色 */
+    --blockquote-bg: #3a3a3a;
+    --blockquote-border: #4fc3f7;
+
+    /* 表格颜色 */
+    --table-header-bg: #3a3a3a;
+    --table-border: #444444;
+
+    /* 阴影 */
+    --shadow-light: 0 2px 4px rgba(0, 0, 0, 0.3);
+    --shadow-medium: 0 4px 8px rgba(0, 0, 0, 0.4);
+    --shadow-heavy: 0 8px 16px rgba(0, 0, 0, 0.5);
+}
+
+/* 自动主题 - 根据系统偏好 */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        /* 基础颜色 */
+        --primary-color: #4fc3f7;
+        --primary-hover: #29b6f6;
+        --secondary-color: #90a4ae;
+        --success-color: #66bb6a;
+        --warning-color: #ffb74d;
+        --error-color: #f06292;
+        --info-color: #4dd0e1;
+
+        /* 背景颜色 */
+        --bg-color: #1a1a1a;
+        --panel-bg: #2d2d2d;
+        --panel-header-bg: #3a3a3a;
+        --header-bg: #2d2d2d;
+        --footer-bg: #3a3a3a;
+        --toc-bg: #3a3a3a;
+
+        /* 文字颜色 */
+        --text-color: #e1e1e1;
+        --text-muted: #b0b0b0;
+        --heading-color: #ffffff;
+        --link-color: #4fc3f7;
+
+        /* 边框颜色 */
+        --border-color: #444444;
+        --border-light: #555555;
+
+        /* 按钮颜色 */
+        --button-bg: #3a3a3a;
+        --button-text: #e1e1e1;
+        --button-border: #444444;
+        --button-hover-bg: #4a4a4a;
+
+        /* 输入框颜色 */
+        --input-bg: #2d2d2d;
+        --input-border: #444444;
+        --input-focus: #4fc3f7;
+
+        /* 代码颜色 */
+        --code-bg: #3a3a3a;
+        --code-text: #e1e1e1;
+        --code-block-bg: #2d2d2d;
+        --code-block-text: #e1e1e1;
+
+        /* 引用块颜色 */
+        --blockquote-bg: #3a3a3a;
+        --blockquote-border: #4fc3f7;
+
+        /* 表格颜色 */
+        --table-header-bg: #3a3a3a;
+        --table-border: #444444;
+
+        /* 阴影 */
+        --shadow-light: 0 2px 4px rgba(0, 0, 0, 0.3);
+        --shadow-medium: 0 4px 8px rgba(0, 0, 0, 0.4);
+        --shadow-heavy: 0 8px 16px rgba(0, 0, 0, 0.5);
+    }
+}
+
+/* 主题过渡动画 */
+* {
+    transition: background-color 0.3s ease, 
+                color 0.3s ease, 
+                border-color 0.3s ease,
+                box-shadow 0.3s ease;
+}
+
+/* 禁用某些元素的过渡以提高性能 */
+.markdown-textarea,
+.preview-content,
+pre,
+code {
+    transition: none;
+}
+
+/* 主题特定的组件样式 */
+
+/* 滚动条样式 */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--panel-bg);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+}
+
+/* 选择文本样式 */
+::selection {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+::-moz-selection {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* 焦点样式 */
+button:focus,
+input:focus,
+textarea:focus {
+    outline: 2px solid var(--input-focus);
+    outline-offset: 2px;
+}
+
+/* 主题切换按钮特殊样式 */
+.theme-toggle {
+    position: relative;
+    overflow: hidden;
+}
+
+.theme-toggle::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background-color: var(--primary-color);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.3s ease, height 0.3s ease;
+    z-index: -1;
+}
+
+.theme-toggle:hover::before {
+    width: 100%;
+    height: 100%;
+}
+
+/* 错误和状态样式的主题适配 */
+.error {
+    background-color: color-mix(in srgb, var(--error-color) 10%, var(--panel-bg));
+    border-color: var(--error-color);
+    color: var(--error-color);
+}
+
+.warning {
+    background-color: color-mix(in srgb, var(--warning-color) 10%, var(--panel-bg));
+    border-color: var(--warning-color);
+    color: var(--warning-color);
+}
+
+.success {
+    background-color: color-mix(in srgb, var(--success-color) 10%, var(--panel-bg));
+    border-color: var(--success-color);
+    color: var(--success-color);
+}
+
+.info {
+    background-color: color-mix(in srgb, var(--info-color) 10%, var(--panel-bg));
+    border-color: var(--info-color);
+    color: var(--info-color);
+}
+
+/* 降级支持 - 如果不支持 color-mix */
+@supports not (background-color: color-mix(in srgb, red 10%, blue)) {
+    [data-theme="dark"] .error {
+        background-color: rgba(240, 98, 146, 0.1);
+    }
+    
+    [data-theme="dark"] .warning {
+        background-color: rgba(255, 183, 77, 0.1);
+    }
+    
+    [data-theme="dark"] .success {
+        background-color: rgba(102, 187, 106, 0.1);
+    }
+    
+    [data-theme="dark"] .info {
+        background-color: rgba(77, 208, 225, 0.1);
+    }
+}
+
+/* 打印时强制使用亮色主题 */
+@media print {
+    :root {
+        --bg-color: #ffffff !important;
+        --text-color: #000000 !important;
+        --panel-bg: #ffffff !important;
+        --border-color: #cccccc !important;
+        --code-bg: #f5f5f5 !important;
+        --code-text: #000000 !important;
+    }
+}
